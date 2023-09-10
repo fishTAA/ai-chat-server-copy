@@ -80,12 +80,16 @@ wss.on("connection", (ws, req) => {
 
   //on message from client
   ws.on("message", data => {
-    console.log("session", session)
     const message: ChatCommunication = JSON.parse(data.toString())
+    message.message.dateSent = new Date();
+    wsClients[session].send(JSON.stringify(message));
     storeMessage(message).then((res)=> {
-      message.message.dateSent = res.dateSent;
-      wsClients[session].send(JSON.stringify(message));
-      predictCompletion(message.message.messageBody)
+      predictCompletion(message.message.messageBody).then((res)=> {
+        const response = chatMessage(res.message?.content, 'AI Chat', new Date());
+        response.message.senderToken = token.toString();
+        storeMessage(response);
+        wsClients[session].send(JSON.stringify(response));
+      });
     });
     console.log(`Client has sent us: ${message}`)
   });

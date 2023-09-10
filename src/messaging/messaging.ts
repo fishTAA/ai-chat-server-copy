@@ -2,6 +2,7 @@
 export interface ChatCommunication {
 	type: 'message' | 'connection',
 	authIssue?: boolean,
+  method?: 'send' | 'receive', 
 	message: Message,
 }
 
@@ -9,7 +10,7 @@ export interface Message {
 	messageBody: string,
 	dateSent: string,
 	sender: string,
-
+	senderToken?: string,
 }
 
 export const connectionMessage = (message: string, authIssue?: boolean) => {

@@ -8,6 +8,7 @@ import url from 'url';
 import { storeMessage, chatMessage, connectionMessage, ChatCommunication, getMessages, sendMessage } from './messaging/messaging';
 import * as http from 'http';
 import { Interface } from 'readline';
+import { predictCompletion } from './ai/service';
 
 dotenv.config();
 
@@ -84,6 +85,7 @@ wss.on("connection", (ws, req) => {
     storeMessage(message).then((res)=> {
       message.message.dateSent = res.dateSent;
       wsClients[session].send(JSON.stringify(message));
+      predictCompletion(message.message.messageBody)
     });
     console.log(`Client has sent us: ${message}`)
   });

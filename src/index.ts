@@ -10,10 +10,10 @@ import { chatMessage, connectionMessage } from './messaging/messaging';
 dotenv.config();
 
 const app: Application = express();
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || "8000";
 
 const wss = new WebSocketServer.Server({
-  port: 8080,
+  port: Number.parseInt(port),
   path: "/ws"
 })
 

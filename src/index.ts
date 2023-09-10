@@ -6,16 +6,12 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import url from 'url';
 import { chatMessage, connectionMessage } from './messaging/messaging';
+import * as http from 'http';
 
 dotenv.config();
 
 const app: Application = express();
 const port = process.env.PORT || "8000";
-
-const wss = new WebSocketServer.Server({
-  port: Number.parseInt(port),
-  path: "/ws"
-})
 
 app.use(cors())
 
@@ -27,14 +23,16 @@ app.get("/generateSession", (req: Request, res: Response) => {
   res.json(generateToken())
 })
 
-app.listen(port, () => {
-  console.log(`Server Launched at http://localhost:${port}`);
-});
 
 let wsClients: never[] = [];
 
+
+const server = http.createServer(app);
+const wss = new WebSocketServer.Server({server})
+console.log("The WebSocket server is running on port 8080");
+
 wss.on("connection", (ws, req) => {
-  const token = url.parse(req.url, true).query.token;
+  const token = url.parse(req.url, true).query.token || "";
 
   let session = "";
 
@@ -67,4 +65,6 @@ wss.on("connection", (ws, req) => {
       console.log("Some Error occurred")
   }
 });
-console.log("The WebSocket server is running on port 8080");
+server.listen(port, () => {
+  console.log(`Server Launched at http://localhost:${port}`);
+});

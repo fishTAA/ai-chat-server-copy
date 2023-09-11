@@ -9,6 +9,9 @@ import { storeMessage, chatMessage, connectionMessage, ChatCommunication, getMes
 import * as http from 'http';
 import { Interface } from 'readline';
 import { predictCompletion } from './ai/service';
+import { createEmbedding, findRelatedDocuments, getEmbeddingData } from './ai/embeddings';
+import { SettingsInterface } from './settings/models';
+import { getSettings, saveSettings } from './settings/settings';
 
 dotenv.config();
 
@@ -22,6 +25,8 @@ const wss = new WebSocketServer.Server({server})
 let wsClients: WebSocketServer[] = [];
 
 app.use(cors())
+app.use(express.urlencoded());
+app.use(express.json()); 
 
 app.get('/', (req: Request, res: Response) => {
   res.send('This is the webserver');
@@ -52,6 +57,38 @@ app.get("/getMessages", async (req: Request, res: Response) => {
   const decodedToken = decodeToken(token);
   const messages = await getMessages(decodedToken.session_id);
   res.json(messages)
+})
+
+app.post("/createEmbedding",  async (req: Request, res: Response) => {
+  const document = req.body.input
+  const ret = await createEmbedding(document)
+  res.json({
+    id: ret.objectId.toString(),
+    success: true
+  })
+})
+
+app.post("/testEmbedding",  async (req: Request, res: Response) => {
+  const document = req.body.input
+  const embeddingData = await getEmbeddingData(document);
+  const result = await findRelatedDocuments(embeddingData[0].embedding)
+  res.json({
+    related: result,
+  })
+})
+
+app.post("/saveSettings",  async (req: Request, res: Response) => {
+  const settings: SettingsInterface = req.body.settingsData;
+  const result = saveSettings(settings);
+  console.log("res",settings)
+  res.json({
+    related: result,
+  })
+})
+
+app.get("/getSettings", async (req: Request, res: Response) => {
+  const settings = await getSettings();
+  res.json(settings)
 })
 
 wss.on("connection", (ws, req) => {

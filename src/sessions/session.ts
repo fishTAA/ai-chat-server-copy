@@ -18,7 +18,7 @@ export const generateToken = () => {
     { session_id: sessionId},
     TOKEN_KEY,
     {
-      expiresIn: "2h",
+      expiresIn: "12h",
     }
   );
   return {
@@ -28,14 +28,18 @@ export const generateToken = () => {
 }
 
 export const decodeToken = (token): Token => {
-  if (token) {
-    const t = jwt.verify(token.toString(), TOKEN_KEY);
-    return JSON.parse(JSON.stringify(t));
-  } else {
-    return {
-      session_id: "",
-      iat: 0,
-      exp: 0,
-    };
+  try {
+    if (token) {
+      const t = jwt.verify(token.toString(), TOKEN_KEY);
+      return JSON.parse(JSON.stringify(t));
+    } else {
+      return {
+        session_id: "",
+        iat: 0,
+        exp: 0,
+      };
+    }
+  } catch(e){
+    console.log("e", e);
   }
 }

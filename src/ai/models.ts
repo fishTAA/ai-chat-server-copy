@@ -29,6 +29,7 @@ export interface DocumentUpload {
   input: string;
   uploadDate: string;
   embedding: [Number];
+  score?: number;
 }
 
 export interface RetProcess {

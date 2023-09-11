@@ -5,6 +5,8 @@ import { WebSocketServer } from 'ws';
 
 export interface ChatCommunication {
 	type: 'message' | 'connection',
+  format?: 'text' | 'file',
+  fileName?: string,
 	authIssue?: boolean,
   method?: 'send' | 'receive', 
 	message: Message,
@@ -15,6 +17,8 @@ export interface MessageHistory {
   sessionId: string,
   sender: string,
   dateSent: Date,
+  fileName?: string,
+  format?: 'text' | 'file',
   message: Message
 }
 
@@ -68,6 +72,8 @@ export const storeMessage = async (comm: ChatCommunication): Promise<StoreMessag
       sessionId: decodeToken(comm.message.senderToken).session_id,
       sender: comm.message.sender,
       dateSent: dateSend,
+      fileName: comm.fileName,
+      format: comm.format || 'text',
       message: {
         ...comm.message,
         dateSent: dateSend,
@@ -99,6 +105,8 @@ export const getMessages = async (sessionId: string): Promise<ChatCommunication[
     chatCommunications = messageHistory.map((m)=> {
       return {
         type: 'message',
+        format: m.format,
+        fileName: m.fileName,
         message: m.message,
       }
     })

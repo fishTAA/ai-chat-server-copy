@@ -1,3 +1,5 @@
+import { ObjectId } from "mongodb";
+
 export interface Choice {
   index?: string;
   finish_reason?: string;
@@ -15,4 +17,20 @@ export interface CompletionDocument {
   choices: Array<Choice>;
   model: string;
   version: string;
+}
+
+export interface EmbeddingData {
+  object: string;
+  embedding: [Number];
+  index: number
+}
+
+export interface DocumentUpload {
+  input: string;
+  uploadDate: string;
+  embedding: [Number];
+}
+
+export interface RetProcess {
+  objectId: ObjectId;
 }

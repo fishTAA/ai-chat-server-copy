@@ -1,4 +1,6 @@
 import { getConnection } from "../db/connection";
+import { getSettings } from "../settings/settings";
+import { findRelatedDocuments, getEmbeddingData } from "./embeddings";
 import { Choice, CompletionDocument } from "./models";
 
 const endPoint = process.env.AI_ENDPOINT || "";
@@ -12,11 +14,30 @@ export const predictCompletion = async (prompt: string): Promise<Choice> => {
     return choice[0];
   }
 
+  const settings = await getSettings();
+
+  let query = prompt;
+  if (settings.enableEmbedding) {
+    const promptEmbed = await getEmbeddingData(prompt);
+    if (promptEmbed && promptEmbed.length > 0) {
+      const related = await findRelatedDocuments(promptEmbed[0].embedding);
+      if (related && related.length > 0) {
+        const selectedRelated = related[0]
+        const score : number = 100 * (selectedRelated.score || 100);
+        if(score >= settings.minimumScore) {
+          // inspired by https://gist.github.com/toshvelaga/2bd8b5efb14c145892a14bcb663c7342
+          query = `Based on this context: ${selectedRelated.input} \n\n Query: ${prompt} \n\n Answer:`
+        }
+      }
+    }
+  }
+  console.log("query", query);
+
   const completionEndPoint = `${endPoint}/${completionModel}/chat/completions?api-version=${completionModelVersion}`;
   const data = {
     "messages": [{
       role: "user",
-      content: prompt,
+      content: query,
     }]
   }
   return fetch(completionEndPoint, {

@@ -6,7 +6,7 @@ import { decodeToken, generateToken } from './sessions/session';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import url from 'url';
-import { storeMessage, chatMessage, connectionMessage, ChatCommunication, getMessages, sendMessage } from './messaging/messaging';
+import { storeMessage, chatMessage, connectionMessage, ChatCommunication, getMessages, sendMessage, createNotification, createRemoveNotification } from './messaging/messaging';
 import * as http from 'http';
 import { predictCompletion } from './ai/service';
 import { createEmbedding, findRelatedDocuments, getEmbeddingData } from './ai/embeddings';
@@ -70,12 +70,15 @@ wss.on("connection", (ws, req) => {
     message.message.dateSent = new Date();
     wsClients[session].send(JSON.stringify(message));
     console.log(`Client has sent us:`, message)
+    let notification = createNotification("AI Chat is processing...");
+    wsClients[session].send(JSON.stringify(notification));
     storeMessage(message).then((res)=> {
       predictCompletion(message.message.messageBody).then((res)=> {
         const response = chatMessage(res.message?.content, 'AI Chat', new Date());
         response.message.senderToken = token.toString();
         storeMessage(response);
         wsClients[session].send(JSON.stringify(response));
+        wsClients[session].send(JSON.stringify(createRemoveNotification()));
       });
     });
   });
@@ -171,11 +174,14 @@ app.post("/uploadFile", upload.single("file"), async (req: Request, res: Respons
    */
   const content = await readDocumentFile(file);
   fileMessage.message.messageBody = content;
+  let notification = createNotification("AI Chat is processing...");
+  wsClients[decodedToken.session_id].send(JSON.stringify(notification));
   predictCompletion(content).then((res)=> {
     const response = chatMessage(res.message?.content, 'AI Chat', new Date());
     response.message.senderToken = token.toString();
     storeMessage(response);
     wsClients[decodedToken.session_id].send(JSON.stringify(response));
+    wsClients[decodedToken.session_id].send(createRemoveNotification());
   });
   storeMessage(fileMessage);
   res.json(fileMessage)

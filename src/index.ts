@@ -55,7 +55,7 @@ wss.on("connection", (ws, req) => {
       session = decoded.session_id;
       if (!wsClients[session]) {
         // sending message to client
-        const welcomeMessage = chatMessage("Welcome", 'AI Chat', new Date());
+        const welcomeMessage = chatMessage("Welcome to our AI application! We are excited for you to explore its capabilities. To get started, we kindly ask you to input your message as a prompt. Our AI will then generate a response tailored to your input. Let's begin!", 'AI Chat', new Date());
         welcomeMessage.message.senderToken = token.toString();
         storeMessage(welcomeMessage);
         ws.send(JSON.stringify(welcomeMessage));

@@ -4,7 +4,7 @@ import { decodeToken } from '../sessions/session';
 import { WebSocketServer } from 'ws';
 
 export interface ChatCommunication {
-	type: 'message' | 'connection',
+	type: 'message' | 'connection' | 'notification' | 'remove-notification',
   format?: 'text' | 'file',
   fileName?: string,
 	authIssue?: boolean,
@@ -56,6 +56,31 @@ export const chatMessage = (message: string, sender: string, dateSent: Date): Ch
 			messageBody: message,
 			dateSent: dateSent,
 			sender: sender,
+		}
+	}
+	return chat;
+}
+
+export const createNotification = (message: string): ChatCommunication => {
+	const chat: ChatCommunication = {
+		type: 'notification',
+		authIssue: false,
+		message: {
+			messageBody: message,
+			dateSent: new Date(),
+			sender: 'AI Chat',
+		}
+	}
+	return chat;
+}
+export const createRemoveNotification = (): ChatCommunication => {
+	const chat: ChatCommunication = {
+		type: 'remove-notification',
+		authIssue: false,
+		message: {
+			messageBody: '',
+			dateSent: new Date(),
+			sender: 'AI Chat',
 		}
 	}
 	return chat;

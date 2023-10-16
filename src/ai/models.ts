@@ -27,6 +27,8 @@ export interface EmbeddingData {
 
 export interface DocumentUpload {
   input: string;
+  solution?: string;
+  title?: string;
   uploadDate: string;
   embedding: [Number];
   score?: number;

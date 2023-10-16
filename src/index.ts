@@ -74,11 +74,13 @@ wss.on("connection", (ws, req) => {
     wsClients[session].send(JSON.stringify(notification));
     storeMessage(message).then((res)=> {
       predictCompletion(message.message.messageBody).then((res)=> {
-        const response = chatMessage(res.message?.content, 'AI Chat', new Date());
-        response.message.senderToken = token.toString();
-        storeMessage(response);
-        wsClients[session].send(JSON.stringify(response));
-        wsClients[session].send(JSON.stringify(createRemoveNotification()));
+        res.map(r => {
+          const response = chatMessage(r.message?.content, 'AI Chat', new Date());
+          response.message.senderToken = token.toString();
+          storeMessage(response);
+          wsClients[session].send(JSON.stringify(response));
+          wsClients[session].send(JSON.stringify(createRemoveNotification()));
+        })
       });
     });
   });
@@ -126,8 +128,10 @@ app.get("/getMessages", async (req: Request, res: Response) => {
 })
 
 app.post("/createEmbedding",  async (req: Request, res: Response) => {
+  const documentTitle = req.body.title
+  const documentKeyword = req.body.keyword
   const document = req.body.input
-  const ret = await createEmbedding(document)
+  const ret = await createEmbedding(document, documentTitle, documentKeyword)
   res.json({
     id: ret.objectId.toString(),
     success: true
@@ -135,8 +139,8 @@ app.post("/createEmbedding",  async (req: Request, res: Response) => {
 })
 
 app.post("/testEmbedding",  async (req: Request, res: Response) => {
-  const document = req.body.input
-  const embeddingData = await getEmbeddingData(document);
+  const documentKeyword = req.body.keyword
+  const embeddingData = await getEmbeddingData(documentKeyword);
   const result = await findRelatedDocuments(embeddingData[0].embedding)
   res.json({
     related: result,
@@ -153,8 +157,9 @@ app.post("/saveSettings",  async (req: Request, res: Response) => {
 })
 
 app.get("/getSettings", async (req: Request, res: Response) => {
-  const settings = await getSettings();
-  res.json(settings)
+  //const settings = await getSettings();
+  //res.json(settings)
+  return {};
 })
 
 /**
@@ -177,11 +182,11 @@ app.post("/uploadFile", upload.single("file"), async (req: Request, res: Respons
   let notification = createNotification("AI Chat is processing...");
   wsClients[decodedToken.session_id].send(JSON.stringify(notification));
   predictCompletion(content).then((res)=> {
-    const response = chatMessage(res.message?.content, 'AI Chat', new Date());
+    /* const response = chatMessage(res.message?.content, 'AI Chat', new Date());
     response.message.senderToken = token.toString();
     storeMessage(response);
     wsClients[decodedToken.session_id].send(JSON.stringify(response));
-    wsClients[decodedToken.session_id].send(createRemoveNotification());
+    wsClients[decodedToken.session_id].send(createRemoveNotification()); */
   });
   storeMessage(fileMessage);
   res.json(fileMessage)

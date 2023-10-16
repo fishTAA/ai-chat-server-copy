@@ -6,23 +6,25 @@ const embeddingModel = process.env.EMBEDDING_MODEL || "";
 const openAIToken = process.env.OPEN_AI_TOKEN || "";
 const embeddingModelVersion = process.env.EMBEDDING_MODEL_VERSION || "";
 
-export const createEmbedding = async (document: string): Promise<RetProcess> => {
-  const embeddingData = await getEmbeddingData(document);
-  const embedding = await storeEmbedding(document, embeddingData[0]);
+export const createEmbedding = async (document: string, title: string, solution: string): Promise<RetProcess> => {
+  const embeddingData = await getEmbeddingData(`title: "${title}" keyword:"${document}" answers/solutions:"${solution}"`);
+  const embedding = await storeEmbedding(document, embeddingData[0], title, solution);
   return  {
     objectId: embedding.id,
   }
 }
 
-export const getEmbeddingData = async (document: string) => {
-  const embeddingEndPoint = `${endPoint}/${embeddingModel}/embeddings?api-version=${embeddingModelVersion}`;
+export const getEmbeddingData = async (documentKeyword: string) => {
+  const embeddingEndPoint = `${endPoint}embeddings`;
   const data = {
-    input: document,
+    input: documentKeyword,
+    "model": embeddingModel
+    
   }
   return fetch(embeddingEndPoint, {
     method: "post",
     headers: {
-      "api-key": openAIToken,
+     "Authorization":`Bearer ${openAIToken}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data)
@@ -39,6 +41,7 @@ export const getEmbeddingData = async (document: string) => {
 }
 
 export const findRelatedDocuments = async (embedding: [Number]): Promise<DocumentUpload[]> => {
+  console.log("keyword", embedding)
   try {
     const conn = await getConnection();
     const collection = conn.collection<DocumentUpload>("documentUpload");
@@ -56,6 +59,7 @@ export const findRelatedDocuments = async (embedding: [Number]): Promise<Documen
         {
           $project: {
             input: 1,
+            solution: 1,
             score: { $meta: 'searchScore' },
           },
         },
@@ -68,11 +72,13 @@ export const findRelatedDocuments = async (embedding: [Number]): Promise<Documen
   }
 }
 
-export const storeEmbedding = async (input: string, embeddingData: EmbeddingData) => {
+export const storeEmbedding = async (input: string, embeddingData: EmbeddingData, title: string, solution:string) => {
   return await getConnection().then(async (db)=> {
     const dateSend = new Date()
     const res = await db.collection("documentUpload").insertOne({
+      title: title,
       input: input,
+      solution: solution,
       dateUploaded: new Date(),
       version: embeddingModelVersion,
       model: embeddingModel,

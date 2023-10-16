@@ -8,57 +8,40 @@ const completionModel = process.env.COMPLETION_MODEL || "";
 const openAIToken = process.env.OPEN_AI_TOKEN || "";
 const completionModelVersion = process.env.COMPLETION_MODEL_VERSION || "";
 
-export const predictCompletion = async (prompt: string): Promise<Choice> => {
+export const predictCompletion = async (prompt: string): Promise<Array<Choice>> => {
   const choice = await findPrompt(prompt);
   if (choice) {
-    return choice[0];
+    return choice;
   }
 
   const settings = await getSettings();
-
+  const choices: Array<Choice> = [];
   let query = prompt;
-  if (settings.enableEmbedding) {
+  if (true) {
     const promptEmbed = await getEmbeddingData(prompt);
     if (promptEmbed && promptEmbed.length > 0) {
       const related = await findRelatedDocuments(promptEmbed[0].embedding);
       if (related && related.length > 0) {
-        const selectedRelated = related[0]
-        const score : number = 100 * (selectedRelated.score || 100);
-        if(score >= settings.minimumScore) {
-          // inspired by https://gist.github.com/toshvelaga/2bd8b5efb14c145892a14bcb663c7342
-          query = `Based on this context: ${selectedRelated.input} \n\n Query: ${prompt} \n\n Answer:`
-        }
+        related.map((doc)=> {
+          const selectedRelated = related[0]
+          const score : number = 100 * (selectedRelated.score || 100);
+          if(score >= settings.minimumScore) {
+            const newChoice: Choice = {
+              index: "",
+              finish_reason: "",
+              message: {
+                content: doc.solution
+              },
+            };
+            choices.push(newChoice);
+          }
+        })
       }
     }
   }
-  console.log("query", query);
 
-  const completionEndPoint = `${endPoint}/${completionModel}/chat/completions?api-version=${completionModelVersion}`;
-  const data = {
-    "messages": [{
-      role: "user",
-      content: query,
-    }]
-  }
-  return fetch(completionEndPoint, {
-    method: "post",
-    headers: {
-      "api-key": openAIToken,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data)
-  }).then((res)=> {
-    return res.json()
-  }).then((res)=> {
-    const choices: Array<Choice> = res.choices;
-    storePrompt(prompt, choices);
-    return choices[0];
-  }).catch((e)=> {
-    console.log("error", e)
-    return {
-      message: {}
-    }
-  });
+  storePrompt(prompt, choices);
+  return choices;
 }
 
 export const findPrompt = async (prompt: string): Promise<Array<Choice> | null> => {

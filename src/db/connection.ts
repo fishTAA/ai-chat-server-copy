@@ -12,6 +12,6 @@ export const getConnection = async (): Promise<Db> => {
     console.error(e);
   }
   
-  const dbConnection: Db = conn.db("ai-chat");
+  const dbConnection: Db = conn.db("IT-Support");
   return dbConnection;
 }

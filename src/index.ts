@@ -130,26 +130,9 @@ app.get("/getMessages", async (req: Request, res: Response) => {
 app.get("/findDocument", async (req: Request, res: Response) =>{
   const id = req.query.id;
   const document = await findDocument(id as string);
-  document.embedding = null
-
-  // return fetch(embeddingEndPoint, {
-  //   method: "post",
-  //   headers: {
-  //    "Authorization":`Bearer ${openAIToken}`,
-  //     "Content-Type": "application/json",
-  //   },
-  //   body: JSON.stringify(data)
-  // }).then((res)=> {
-  //   return res.json()
-  // }).then(async (res)=> {
-  //   const embeddingData: Array<EmbeddingData> = res.data;
-  //   return embeddingData;
-  // }).catch((e)=> {
-  //   console.log("error", e)
-  //   throw e;
-  // });
-
-
+  if(document) {
+    document.embedding = null
+  }
   console.log(id);
   res.json(document);
 }

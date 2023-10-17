@@ -6,7 +6,7 @@ import { decodeToken, generateToken } from './sessions/session';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import url from 'url';
-import { storeMessage, chatMessage, connectionMessage, ChatCommunication, getMessages, sendMessage, createNotification, createRemoveNotification } from './messaging/messaging';
+import { storeMessage, chatMessage, connectionMessage, ChatCommunication, getMessages, sendMessage, createNotification, createRemoveNotification, findDocument } from './messaging/messaging';
 import * as http from 'http';
 import { predictCompletion } from './ai/service';
 import { createEmbedding, findRelatedDocuments, getEmbeddingData } from './ai/embeddings';
@@ -127,6 +127,35 @@ app.get("/getMessages", async (req: Request, res: Response) => {
   res.json(messages)
 })
 
+app.get("/findDocument", async (req: Request, res: Response) =>{
+  const id = req.query.id;
+  const document = await findDocument(id as string);
+  document.embedding = null
+
+  // return fetch(embeddingEndPoint, {
+  //   method: "post",
+  //   headers: {
+  //    "Authorization":`Bearer ${openAIToken}`,
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify(data)
+  // }).then((res)=> {
+  //   return res.json()
+  // }).then(async (res)=> {
+  //   const embeddingData: Array<EmbeddingData> = res.data;
+  //   return embeddingData;
+  // }).catch((e)=> {
+  //   console.log("error", e)
+  //   throw e;
+  // });
+
+
+  console.log(id);
+  res.json(document);
+}
+  
+)
+
 app.post("/createEmbedding",  async (req: Request, res: Response) => {
   const documentTitle = req.body.title
   const documentKeyword = req.body.keyword
@@ -161,6 +190,8 @@ app.get("/getSettings", async (req: Request, res: Response) => {
   //res.json(settings)
   return {};
 })
+
+
 
 /**
  * Use rest api over sockets for this

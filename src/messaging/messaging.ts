@@ -2,6 +2,7 @@ import { ObjectId, UUID } from 'mongodb';
 import { getConnection } from '../db/connection';
 import { decodeToken } from '../sessions/session';
 import { WebSocketServer } from 'ws';
+import { DocumentUpload } from '../ai/models';
 
 export interface ChatCommunication {
 	type: 'message' | 'connection' | 'notification' | 'remove-notification',
@@ -139,6 +140,19 @@ export const getMessages = async (sessionId: string): Promise<ChatCommunication[
   }).catch((e)=> {
     console.log("error", e)
     return [];
+  })
+
+}
+
+
+export const findDocument = async (_id: string): Promise<DocumentUpload | null > => {
+  return getConnection().then(async (db)=> {
+    const c = db.collection<DocumentUpload>("documentUpload").findOne(new ObjectId(_id))
+    //const messageHistory = await c;
+    return c;
+  }).catch((e)=> {
+    console.log("error", e)
+    return null;
   })
 
 }

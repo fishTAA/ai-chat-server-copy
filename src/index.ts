@@ -74,13 +74,28 @@ wss.on("connection", (ws, req) => {
     wsClients[session].send(JSON.stringify(notification));
     storeMessage(message).then((res)=> {
       predictCompletion(message.message.messageBody).then((res)=> {
-        res.map(r => {
-          const response = chatMessage(r.message?.content, 'AI Chat', new Date());
+
+        // getting the most relevant solution
+        if (res.length > 0) {
+          const firstElement = res[0];
+        
+          // Now you can work with the first element (firstElement)
+          const response = chatMessage(firstElement.message?.content, 'AI Chat', new Date());
           response.message.senderToken = token.toString();
           storeMessage(response);
           wsClients[session].send(JSON.stringify(response));
           wsClients[session].send(JSON.stringify(createRemoveNotification()));
-        })
+        } else {
+          console.log("The 'res' array is empty.");
+        }
+
+        // res.map(r => {
+        //   const response = chatMessage(r.message?.content, 'AI Chat', new Date());
+        //   response.message.senderToken = token.toString();
+        //   storeMessage(response);
+        //   wsClients[session].send(JSON.stringify(response));
+        //   wsClients[session].send(JSON.stringify(createRemoveNotification()));
+        // })
       });
     });
   });

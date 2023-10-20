@@ -29,17 +29,19 @@ export interface StoreMessageRes {
 }
 
 export interface Message {
+  messageTitle?: string
 	messageBody: string,
 	dateSent: Date,
 	sender: string,
 	senderToken?: string,
 }
 
-export const connectionMessage = (message: string, authIssue?: boolean) => {
+export const connectionMessage = (messageTitle: string, message: string, authIssue?: boolean) => {
 	const chat: ChatCommunication = {
 		type: 'connection',
 		authIssue: authIssue,
 		message: {
+      messageTitle: messageTitle,
 			messageBody: message,
 			dateSent: new Date(),
 			sender: 'system',
@@ -49,11 +51,12 @@ export const connectionMessage = (message: string, authIssue?: boolean) => {
 }
 
 
-export const chatMessage = (message: string, sender: string, dateSent: Date): ChatCommunication => {
+export const chatMessage = (messageTitle: string, message: string, sender: string, dateSent: Date): ChatCommunication => {
 	const chat: ChatCommunication = {
 		type: 'message',
 		authIssue: false,
 		message: {
+      messageTitle: messageTitle,
 			messageBody: message,
 			dateSent: dateSent,
 			sender: sender,
@@ -62,11 +65,12 @@ export const chatMessage = (message: string, sender: string, dateSent: Date): Ch
 	return chat;
 }
 
-export const createNotification = (message: string): ChatCommunication => {
+export const createNotification = (messageTitle: string, message: string): ChatCommunication => {
 	const chat: ChatCommunication = {
 		type: 'notification',
 		authIssue: false,
 		message: {
+      messageTitle: messageTitle,
 			messageBody: message,
 			dateSent: new Date(),
 			sender: 'AI Chat',
@@ -79,6 +83,7 @@ export const createRemoveNotification = (): ChatCommunication => {
 		type: 'remove-notification',
 		authIssue: false,
 		message: {
+      messageTitle: '',
 			messageBody: '',
 			dateSent: new Date(),
 			sender: 'AI Chat',

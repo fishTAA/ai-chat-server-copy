@@ -9,6 +9,7 @@ export interface Choice {
 export interface ChoiceMessage {
   role?: string;
   content?: string;
+  title?: string;
 }
 
 export interface CompletionDocument {

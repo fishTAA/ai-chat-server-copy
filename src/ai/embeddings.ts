@@ -66,7 +66,6 @@ export const findRelatedDocuments = async (embedding: [Number]): Promise<Documen
         },
       ])
       .toArray()
-    console.log("documents", documents)
     return documents;
   } catch (err) {
     throw err;

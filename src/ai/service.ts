@@ -11,7 +11,7 @@ const completionModelVersion = process.env.COMPLETION_MODEL_VERSION || "";
 export const predictCompletion = async (prompt: string): Promise<Array<Choice>> => {
   const choice = await findPrompt(prompt);
   if (choice) {
-    return choice;
+   return choice;
   }
 
   const settings = await getSettings();
@@ -19,8 +19,10 @@ export const predictCompletion = async (prompt: string): Promise<Array<Choice>> 
   let query = prompt;
   if (true) {
     const promptEmbed = await getEmbeddingData(prompt);
+    console.log("embed>", promptEmbed?.length)
     if (promptEmbed && promptEmbed.length > 0) {
       const related = await findRelatedDocuments(promptEmbed[0].embedding);
+      console.log("related", related?.length)
       if (related && related.length > 0) {
         related.map((doc)=> {
           const selectedRelated = related[0]
@@ -30,14 +32,28 @@ export const predictCompletion = async (prompt: string): Promise<Array<Choice>> 
               index: "",
               finish_reason: "",
               message: {
-                content: doc.solution
+                content: doc.solution,
+                title: doc.title
               },
             };
             choices.push(newChoice);
+          } else {
+            const newChoice: Choice = {
+              index: "",
+              finish_reason: "",
+              message: {
+                content: "I could not find any related solution to your query.",
+                title: doc.title
+              },
+            };
+            choices.push(newChoice);
+
           }
         })
       }
     }
+    // storePrompt(prompt, choices);
+    // return choices;
   }
 
   storePrompt(prompt, choices);

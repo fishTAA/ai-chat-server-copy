@@ -48,14 +48,14 @@ wss.on("connection", (ws, req) => {
   jwt.verify(token.toString(), process.env.TOKEN_KEY || "xxx", (err: any, decoded: any) => {
     if (err) {
       console.log("closing")
-      ws.send(connectionMessage("Title","Invalid Token", true))
+      ws.send(connectionMessage("1","Title","Invalid Token", true))
       ws.close();
     } else {
       console.log("the client has connected");
       session = decoded.session_id;
       if (!wsClients[session]) {
         // sending message to client
-        const welcomeMessage = chatMessage("","Welcome to our AI application! We are excited for you to explore its capabilities. To get started, we kindly ask you to input your message as a prompt. Our AI will then generate a response tailored to your input. Let's begin!", 'AI Chat', new Date());
+        const welcomeMessage = chatMessage("1","","Welcome to our AI application! We are excited for you to explore its capabilities. To get started, we kindly ask you to input your message as a prompt. Our AI will then generate a response tailored to your input. Let's begin!", 'AI Chat', new Date());
         welcomeMessage.message.senderToken = token.toString();
         storeMessage(welcomeMessage);
         ws.send(JSON.stringify(welcomeMessage));
@@ -70,7 +70,7 @@ wss.on("connection", (ws, req) => {
     message.message.dateSent = new Date();
     wsClients[session].send(JSON.stringify(message));
     console.log(`Client has sent us:`, message)
-    let notification = createNotification("AI Loading","AI Chat is processing...");
+    let notification = createNotification("1","AI Loading","AI Chat is processing...");
     wsClients[session].send(JSON.stringify(notification));
     storeMessage(message).then((res)=> {
       predictCompletion(message.message.messageBody).then((res)=> {
@@ -79,7 +79,7 @@ wss.on("connection", (ws, req) => {
         if (res.length > 0) {
           const firstElement = res[0];
         
-          const response = chatMessage(firstElement.message?.title,firstElement.message?.content, 'AI Chat', new Date());
+          const response = chatMessage(firstElement.message.id,firstElement.message?.title,firstElement.message?.content, 'AI Chat', new Date());
           response.message.senderToken = token.toString();
           storeMessage(response);
           wsClients[session].send(JSON.stringify(response));
@@ -173,6 +173,8 @@ app.post("/testEmbedding",  async (req: Request, res: Response) => {
   })
 })
 
+
+
 app.post("/saveSettings",  async (req: Request, res: Response) => {
   const settings: SettingsInterface = req.body.settingsData;
   const result = saveSettings(settings);
@@ -197,7 +199,7 @@ app.post("/uploadFile", upload.single("file"), async (req: Request, res: Respons
   const file = req.file;
   const token = req.header('authorization');
   const decodedToken = decodeToken(token);
-  const fileMessage = chatMessage("","", '_self', new Date());
+  const fileMessage = chatMessage("","","", '_self', new Date());
   fileMessage.format = "file";
   fileMessage.fileName = file.originalname;
   fileMessage.message.senderToken = token.toString();
@@ -207,7 +209,7 @@ app.post("/uploadFile", upload.single("file"), async (req: Request, res: Respons
    */
   const content = await readDocumentFile(file);
   fileMessage.message.messageBody = content;
-  let notification = createNotification("AI Loading","AI Chat is processing...");
+  let notification = createNotification("","AI Loading","AI Chat is processing...");
   wsClients[decodedToken.session_id].send(JSON.stringify(notification));
   predictCompletion(content).then((res)=> {
     /* const response = chatMessage(res.message?.content, 'AI Chat', new Date());

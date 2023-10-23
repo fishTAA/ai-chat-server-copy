@@ -29,6 +29,7 @@ export interface StoreMessageRes {
 }
 
 export interface Message {
+  messageID: string
   messageTitle?: string
 	messageBody: string,
 	dateSent: Date,
@@ -36,11 +37,12 @@ export interface Message {
 	senderToken?: string,
 }
 
-export const connectionMessage = (messageTitle: string, message: string, authIssue?: boolean) => {
+export const connectionMessage = (messageID:string,messageTitle: string, message: string, authIssue?: boolean) => {
 	const chat: ChatCommunication = {
 		type: 'connection',
 		authIssue: authIssue,
 		message: {
+      messageID: messageID,
       messageTitle: messageTitle,
 			messageBody: message,
 			dateSent: new Date(),
@@ -51,11 +53,12 @@ export const connectionMessage = (messageTitle: string, message: string, authIss
 }
 
 
-export const chatMessage = (messageTitle: string, message: string, sender: string, dateSent: Date): ChatCommunication => {
+export const chatMessage = (messageID:string,messageTitle: string, message: string, sender: string, dateSent: Date): ChatCommunication => {
 	const chat: ChatCommunication = {
 		type: 'message',
 		authIssue: false,
 		message: {
+      messageID:messageID,
       messageTitle: messageTitle,
 			messageBody: message,
 			dateSent: dateSent,
@@ -65,11 +68,12 @@ export const chatMessage = (messageTitle: string, message: string, sender: strin
 	return chat;
 }
 
-export const createNotification = (messageTitle: string, message: string): ChatCommunication => {
+export const createNotification = (messageID:string,messageTitle: string, message: string): ChatCommunication => {
 	const chat: ChatCommunication = {
 		type: 'notification',
 		authIssue: false,
 		message: {
+      messageID:messageID,
       messageTitle: messageTitle,
 			messageBody: message,
 			dateSent: new Date(),
@@ -83,6 +87,7 @@ export const createRemoveNotification = (): ChatCommunication => {
 		type: 'remove-notification',
 		authIssue: false,
 		message: {
+      messageID:'',
       messageTitle: '',
 			messageBody: '',
 			dateSent: new Date(),

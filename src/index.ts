@@ -9,7 +9,7 @@ import url from 'url';
 import { storeMessage, chatMessage, connectionMessage, ChatCommunication, getMessages, sendMessage, createNotification, createRemoveNotification, findDocument } from './messaging/messaging';
 import * as http from 'http';
 import { predictCompletion } from './ai/service';
-import { createEmbedding, findRelatedDocuments, getEmbeddingData } from './ai/embeddings';
+import { createEmbedding, findRelatedDocuments, getEmbeddingData, submitForm } from './ai/embeddings';
 import { SettingsInterface } from './settings/models';
 import { getSettings, saveSettings } from './settings/settings';
 import path from 'path';
@@ -188,6 +188,20 @@ app.get("/getSettings", async (req: Request, res: Response) => {
   //const settings = await getSettings();
   //res.json(settings)
   return {};
+})
+
+app.post("/submitForm",  async (req: Request, res: Response) => {
+  const documentName = req.body.name
+  const documentEmail = req.body.email
+  const documentTicketClassification = req.body.ticketClassification
+  const documentSpecificTopic = req.body.specificTopic
+  const documentMessage = req.body.message
+  const documentQuestionValue = req.body.questionValue
+  const ret = await submitForm(documentName, documentEmail, documentTicketClassification, documentSpecificTopic, documentMessage, documentQuestionValue)
+  res.json({
+    id: ret.id.toString(),
+    success: true
+  })
 })
 
 

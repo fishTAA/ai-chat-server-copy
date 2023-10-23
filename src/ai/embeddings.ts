@@ -94,3 +94,21 @@ export const storeEmbedding = async (input: string, embeddingData: EmbeddingData
   })
 }
 
+export const submitForm = async (name: string, email: string, ticketClassification: string, specificTopic: string, message: string, questionValue: string) => {
+  return await getConnection().then(async (db)=> {
+    const res = await db.collection("tickets").insertOne({
+      name: name,
+      email: email,
+      ticketClassification: ticketClassification,
+      specificTopic: specificTopic,
+      message: message,
+      questionValue: questionValue
+    });
+    return {
+      id: res.insertedId,
+    }
+  }).catch((e)=> {
+    console.log("error", e)
+    throw e;
+  })
+}

@@ -7,6 +7,7 @@ export interface Choice {
 }
 
 export interface ChoiceMessage {
+  id?: string,
   role?: string;
   content?: string;
   title?: string;
@@ -27,6 +28,7 @@ export interface EmbeddingData {
 }
 
 export interface DocumentUpload {
+  _id: string;
   input: string;
   solution?: string;
   title?: string;

@@ -33,7 +33,9 @@ export const predictCompletion = async (prompt: string): Promise<Array<Choice>> 
               finish_reason: "",
               message: {
                 content: doc.solution,
-                title: doc.title
+                title: doc.title,
+                id: doc._id,
+               
               },
             };
             choices.push(newChoice);
@@ -44,6 +46,8 @@ export const predictCompletion = async (prompt: string): Promise<Array<Choice>> 
               message: {
                 content: "I could not find any related solution to your query.",
                 title: doc.title
+               
+               
               },
             };
             choices.push(newChoice);

@@ -58,6 +58,7 @@ export const findRelatedDocuments = async (embedding: [Number]): Promise<Documen
         },
         {
           $project: {
+            _id: 1,
             title: 1,
             input: 1,
             solution: 1,

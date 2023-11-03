@@ -205,7 +205,6 @@ app.post("/submitForm",  async (req: Request, res: Response) => {
 })
 
 
-
 /**
  * Use rest api over sockets for this
  */
@@ -235,6 +234,21 @@ app.post("/uploadFile", upload.single("file"), async (req: Request, res: Respons
   storeMessage(fileMessage);
   res.json(fileMessage)
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 server.listen(port, () => {

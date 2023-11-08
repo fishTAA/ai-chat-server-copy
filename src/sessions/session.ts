@@ -30,9 +30,11 @@ export const generateToken = () => {
 export const decodeToken = (token): Token => {
   try {
     if (token) {
+      // Verify and decode the JWT using the provided TOKEN_KEY.
       const t = jwt.verify(token.toString(), TOKEN_KEY);
       return JSON.parse(JSON.stringify(t));
     } else {
+      // Return an object with default values if no token is provided.
       return {
         session_id: "",
         iat: 0,

@@ -15,6 +15,7 @@ import { getSettings, saveSettings } from './settings/settings';
 import path from 'path';
 import { readFile } from 'fs';
 import { readDocumentFile } from './file/fileHandler';
+import { findAdminAccs } from './adminAuth/authenticate';
 
 //In case we wanted to store the uploaded file
 const storage = multer.diskStorage({
@@ -247,6 +248,17 @@ app.post("/submitForm",  async (req: Request, res: Response) => {
   })
 })
 
+app.get('/findAdmin', async (req, res) => {
+  const email = req.query.email as string;
+
+  const document = await findAdminAccs(email);
+
+  if (document) {
+    res.json(document);
+  } else {
+    res.status(404).json({ error: 'email not found.' });
+  }
+});
 
 /**
  * Use rest api over sockets for this

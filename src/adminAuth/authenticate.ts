@@ -11,7 +11,6 @@ export const findAdminAccs = async (email:string): Promise<boolean | null > => {
  
     return getConnection().then(async (db)=> {
       const c = await db.collection("adminAccounts").findOne({email})
-      console.log(c)
       if(c!=null){
         return true;
       }

@@ -251,13 +251,8 @@ app.post("/submitForm",  async (req: Request, res: Response) => {
 app.get('/findAdmin', async (req, res) => {
   const email = req.query.email as string;
 
-  const document = await findAdminAccs(email);
-
-  if (document) {
-    res.json(document);
-  } else {
-    res.status(404).json({ error: 'email not found.' });
-  }
+  const document = await findAdminAccs(email); 
+  res.json(document);
 });
 
 /**

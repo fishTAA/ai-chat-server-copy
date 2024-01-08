@@ -254,9 +254,10 @@ app.get('/findAdmin', async (req, res) => {
   const document = await findAdminAccs(email);
 
   if (document) {
-    res.json(document);
+    res.json(true);
   } else {
-    res.status(404).json({ error: 'email not found.' });
+    res.json(false);
+    ;
   }
 });
 

@@ -31,7 +31,8 @@ import path from "path";
 import { readFile } from "fs";
 import { readDocumentFile } from "./file/fileHandler";
 import { findAdminAccs } from "./adminAuth/authenticate";
-import { getKey } from "./adminAuth/validatetoken";
+import { ValidateToken } from "./adminAuth/validatetoken";
+import { validate } from "uuid";
 
 //In case we wanted to store the uploaded file
 const storage = multer.diskStorage({
@@ -305,36 +306,20 @@ app.get("/findAdmin", async (req, res) => {
 
 app.post("/validateUser", (req, res) => {
   const token = req.headers.authorization;
-  const splittoken = token.split(" ")[1];
-  console.log("test token:" + splittoken);
-  // if (!token) {
-  //   return res.status(401).json({ message: "Unauthorized: Token missing" });
-  // }
-  // try {
-  //   // Replace 'your-secret-key' with the actual secret key used to sign the JWT on the client side
-  //   const decoded = jwt.verify(splittoken, "T1St-dLTvyWRgxB_676u8krXS-I");
-
-  //   // The token is valid, you can access the decoded information
-  //   console.log(decoded);
-  //   res.json({ message: "Token is valid", data: decoded });
-  // } catch (err) {
-  //   console.error("Error verifying token:", err);
-  //   res.status(401).json({ message: "Unauthorized: Invalid token" });
-  // }
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: Token missing" });
   }
+  const splittoken = token.split(" ")[1];
+  // console.log("test token:" + splittoken);
 
-  jwt.verify(token, getKey, { algorithms: ["RS256"] }, (err, decoded) => {
-    if (err) {
-      console.error("Error verifying token:", err);
-      return res.status(401).json({ message: "Unauthorized: Invalid token" });
-    }
-
-    // The token is valid, you can access the decoded information
-    console.log(decoded);
-    res.json({ message: "Token is valid", data: decoded });
-  });
+  const t = jwt.decode(splittoken, { complete: true });
+  const value = ValidateToken(t);
+  // console.log(t.header.kid);
+  if (value) {
+    res.json(true);
+  } else {
+    res.json(false);
+  };
 });
 
 /**

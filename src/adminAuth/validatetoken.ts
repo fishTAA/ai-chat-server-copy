@@ -1,14 +1,24 @@
-const jwksClient = require("jwks-rsa");
-const jwksUri =
-  "https://login.microsoftonline.com/%7Bd6b25047-e1c3-4aee-9ecb-b87eb750e861%7D/discovery/keys?appid=%7Bdbd4e6df-ae87-427d-a5a1-2dc06f241a24%7D";
+import express from "express";
+const getKid = async () => {
+  const publickid = await fetch(
+    "https://login.microsoftonline.com/d6b25047-e1c3-4aee-9ecb-b87eb750e861/discovery/keys?appid=dbd4e6df-ae87-427d-a5a1-2dc06f241a24",
+    {
+      method: "get",
+    }
+  );
+  const publickidjson = await publickid.json();
+  return publickidjson;
+};
+export const ValidateToken = async (token) => {
+  const kid = token.header.kid;
+  const publickidjson = await getKid();
+  console.log("token kid" + kid);
+  console.log("public kid" + publickidjson.keys[1].kid);
+  if (kid == publickidjson.keys[1].kid) {
+    console.log("Valid Token");
 
-const client = jwksClient({
-  jwksUri: jwksUri,
-});
-
-export const getKey = (header, callback) => {
-  client.getSigningKey(header.kid, function (err, key) {
-    const signingKey = key.publicKey || key.rsaPublicKey;
-    callback(null, signingKey);
-  });
+    return true;
+  } else {
+    return false;
+  }
 };

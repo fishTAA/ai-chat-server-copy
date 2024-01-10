@@ -227,9 +227,9 @@ app.post("/saveSettings",  async (req: Request, res: Response) => {
 })
 
 app.get("/getSettings", async (req: Request, res: Response) => {
-  //const settings = await getSettings();
-  //res.json(settings)
-  return {};
+  const settings = await getSettings();
+  res.json(settings)
+  //return res.status(200).send({});
 })
 
 app.post("/submitForm",  async (req: Request, res: Response) => {

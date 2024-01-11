@@ -1,7 +1,6 @@
 import express, { Express, Request, Response, Application } from "express";
 import multer from "multer";
 import WebSocketServer from "ws";
-import dotenv from "dotenv";
 import { decodeToken, generateToken } from "../sessions/session";
 import cors from "cors";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -121,7 +120,7 @@ export const newEmbedding = async (req: express.Request, res: express.Response) 
 export const testEmbedding = async (req: express.Request, res: express.Response) => {
     try {
         const documentKeyword = req.body.keyword;
-        console.log("herfe",documentKeyword)
+        console.log("herfe", documentKeyword)
 
         // Get embedding data for the document keyword
         const embeddingData = await getEmbeddingData(documentKeyword);

@@ -1,7 +1,7 @@
 import { ObjectId, UUID } from 'mongodb';
 import { getConnection } from '../db/connection';
 import { decodeToken } from '../sessions/session';
-import { WebSocketServer } from 'ws';
+import  WebSocketServer  from 'ws';
 import { DocumentUpload } from '../ai/models';
 
 export interface ChatCommunication {

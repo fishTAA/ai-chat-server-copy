@@ -1,28 +1,27 @@
 import express from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
 
-import { get, merge} from 'lodash';
+let tokenHolder = '';
 
-import { ValidateToken } from '../adminAuth/validatetoken';
+export const validateUser = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const token = req.headers.authorization;
+    // console.log(token);
+
+    if (token) {
+        const sessionToken = token.split(' ')[1];
+        tokenHolder = sessionToken;
+    }
+
+    next();
+};
 
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const token = req.headers.authorization;
-    console.log(token);
-    if (!token) {
-        return res.status(401).json({ message: "Unauthorized: Token missing" });
+    const token = tokenHolder;
+
+    console.log("Middleware: ", token);
+
+    if (!token || token.length === 0) {
+        return res.status(408).json({ message: "Unauthorized: Token missing" });
     }
-    const splittoken = token.split(" ")[1];
-    // console.log("test token:" + splittoken);
-
-    const t = jwt.decode(splittoken, { complete: true });
-    const value = ValidateToken(t);
-    // console.log(t.header.kid);
+    
     next();
-
-    // if (value) {
-    //     res.json(true);
-    // } else {
-    //     res.json(false);
-    // };
-
 };

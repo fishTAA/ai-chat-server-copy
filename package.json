@@ -37,6 +37,7 @@
     "passport-azure-ad": "^4.3.5",
     "pdf-parse": "^1.1.1",
     "react-jwt": "^1.2.0",
+    "react-router": "^6.21.1",
     "react-spinners": "^0.13.8",
     "uuid": "^9.0.0",
     "ws": "^8.14.1"

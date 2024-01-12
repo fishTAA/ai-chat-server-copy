@@ -1,7 +1,7 @@
 import express from "express";
 const getKid = async () => {
   const publickid = await fetch(
-    "https://login.microsoftonline.com/d6b25047-e1c3-4aee-9ecb-b87eb750e861/discovery/keys?appid=dbd4e6df-ae87-427d-a5a1-2dc06f241a24",
+    "https://login.microsoftonline.com/common/discovery/v2.0/keys",
     {
       method: "get",
     }

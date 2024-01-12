@@ -108,7 +108,7 @@ export const newEmbedding = async (req: express.Request, res: express.Response) 
     const documentKeyword = req.body.keyword;
     const document = req.body.input;
     const categories =req.body.categories 
-
+    console.log("Creating Embedding")
     // Create an embedding for the document and store it in the database
     const ret = await createEmbedding(document, documentTitle, documentKeyword,categories);
     res.json({

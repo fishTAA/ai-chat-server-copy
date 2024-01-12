@@ -31,6 +31,7 @@ export const decodeToken = (token): Token => {
   try {
     if (token) {
       // Verify and decode the JWT using the provided TOKEN_KEY.
+      console.log("Decoding token")
       const t = jwt.verify(token.toString(), TOKEN_KEY);
       return JSON.parse(JSON.stringify(t));
     } else {

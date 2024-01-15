@@ -1,5 +1,5 @@
 import { Categories } from "./models";
-import { getConnection } from "../db/connection";
+import { getConnection } from "./connection";
 
 export const getCategories = async () => {
   return getConnection().then(async (db) => {

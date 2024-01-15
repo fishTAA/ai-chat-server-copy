@@ -32,7 +32,8 @@ import { readDocumentFile } from "../file/fileHandler";
 import { findAdminAccs } from "../adminAuth/authenticate";
 import { ValidateToken } from "../adminAuth/validatetoken";
 import { validate } from "uuid";
-import { getCategories } from "../db/getCotegories";
+import { getCategories } from "../db/getCategories";
+import { createCategories } from "../db/createCategories";
 
 export const checkWebServer = async (
   req: express.Request,
@@ -146,7 +147,7 @@ export const testEmbedding = async (
 ) => {
   try {
     const documentKeyword = req.body.keyword;
-    console.log("herfe", documentKeyword);
+    console.log("Keyword:", documentKeyword);
 
     // Get embedding data for the document keyword
     const embeddingData = await getEmbeddingData(documentKeyword);
@@ -298,3 +299,26 @@ export const uploadFile = async (
     res.sendStatus(500);
   }
 };
+
+export const createNewCategories = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const { value, label } = req.body;
+
+    if (!value || !label) {
+        return res.sendStatus(400);
+    }
+
+    const category = await createCategories({
+      value,
+      label,
+    });
+
+    res.status(200).json(category);
+} catch (err) {
+    console.error(err);
+    return res.sendStatus(500);
+}
+}

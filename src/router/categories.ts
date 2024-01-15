@@ -6,5 +6,5 @@ import { deleteCategory } from '../controllers';
 export default (router: express.Router) => {
   router.post('/createCategories', createNewCategories)
   router.get('/getCategories', findCategories);
-  router.delete('/categories/:id', deleteCategory);
+  router.delete('/deleteCategories/:id', deleteCategory);
 };

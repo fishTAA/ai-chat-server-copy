@@ -32,6 +32,9 @@ import { readDocumentFile } from "../file/fileHandler";
 import { findAdminAccs } from "../adminAuth/authenticate";
 import { ValidateToken } from "../adminAuth/validatetoken";
 import { validate } from "uuid";
+import { findCategory } from "../categories";
+import { getConnection } from "../db/connection";
+import { ObjectId } from "mongodb";
 
 
 
@@ -240,5 +243,36 @@ export const uploadFile = async (req: express.Request, res: express.Response) =>
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
+    }
+};
+
+export const deleteCategory = async (req: express.Request, res: express.Response) => {
+    const categoryId = req.params.id;
+
+    if (!categoryId) {
+        return res.status(400).json({ error: 'Missing category ID parameter in query' });
+    }
+
+    try {
+        // Call the deleteCategory function and pass the necessary parameters
+       await getConnection().then(async (db) => {
+            const objectId = new ObjectId(categoryId);
+            const query = { _id: objectId };
+            const deleteResult = await db.collection('embeddingCategories').deleteOne(query);
+
+            if (!(deleteResult.deletedCount === 0)) {
+                return res.status(404).json({ error: 'Category not found or deletion failed' });
+            }
+
+            return res.sendStatus(200); // Success status
+
+        }).catch((e) => {
+            console.log('Error', e);
+            return res.sendStatus(500); // Internal server error status
+        });
+
+    } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };

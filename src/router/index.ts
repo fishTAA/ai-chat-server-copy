@@ -9,6 +9,7 @@ import fileUpload from './fileupload';
 import session from './session';
 import settings from './settings';
 import ticketing from './ticketing';
+import categories from './categories';
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ export default (): express.Router => {
     session(router);
     settings(router);
     ticketing(router);
+    categories(router);
 
     return router;
 }

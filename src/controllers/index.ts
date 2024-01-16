@@ -34,7 +34,7 @@ import { ValidateToken } from "../adminAuth/validatetoken";
 import { validate } from "uuid";
 import { getConnection } from "../db/connection";
 import { ObjectId } from "mongodb";
-import { getCategories } from "../db/getCategories";
+import { filterEmbeddingsbyCategory, getCategories } from "../db/getCategories";
 import { createCategories } from "../db/createCategories";
 
 export const checkWebServer = async (
@@ -302,30 +302,37 @@ export const uploadFile = async (
   }
 };
 
-export const deleteCategory = async (req: express.Request, res: express.Response) => {
-    const categoryId = req.params.id;
+export const deleteCategory = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const categoryId = req.params.id;
 
-    if (!categoryId) {
-        return res.status(400).json({ error: 'Missing category ID parameter in query' });
-    }
+  if (!categoryId) {
+    return res
+      .status(400)
+      .json({ error: "Missing category ID parameter in query" });
+  }
 
-    try {
-        // Call the deleteCategory function and pass the necessary parameters
-       await getConnection().then(async (db) => {
-            const objectId = new ObjectId(categoryId);
-            const query = { _id: objectId };
-            const deleteResult = await db.collection('embeddingCategories').deleteOne(query);
-            return res.sendStatus(200).json(deleteResult); // Success status
-
-        }).catch((e) => {
-            console.log('Error', e);
-            return res.sendStatus(500); // Internal server error status
-        });
-
-    } catch (error) {
-        console.error('Error:', error);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
+  try {
+    // Call the deleteCategory function and pass the necessary parameters
+    await getConnection()
+      .then(async (db) => {
+        const objectId = new ObjectId(categoryId);
+        const query = { _id: objectId };
+        const deleteResult = await db
+          .collection("embeddingCategories")
+          .deleteOne(query);
+        return res.sendStatus(200).json(deleteResult); // Success status
+      })
+      .catch((e) => {
+        console.log("Error", e);
+        return res.sendStatus(500); // Internal server error status
+      });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 export const createNewCategories = async (
@@ -336,7 +343,7 @@ export const createNewCategories = async (
     const { value, label } = req.body;
 
     if (!value || !label) {
-        return res.sendStatus(400);
+      return res.sendStatus(400);
     }
 
     const category = await createCategories({
@@ -345,8 +352,26 @@ export const createNewCategories = async (
     });
 
     res.status(200).json(category);
-} catch (err) {
+  } catch (err) {
     console.error(err);
     return res.sendStatus(500);
-}
-}
+  }
+};
+
+///returns the filtered emebeddings by category
+export const retrieveEmbeddingbyCategory = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const id = req.body.id;
+    console.log("id", id);
+    const document = await filterEmbeddingsbyCategory(id);
+    if (document) {
+      res.status(200).json(document);
+    }
+  } catch (err) {
+    console.error(err);
+    return res.sendStatus(500);
+  }
+};

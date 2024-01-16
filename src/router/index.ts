@@ -32,6 +32,6 @@ export default (): express.Router => {
   settings(router);
   ticketing(router);
   categories(router);
-
+  
   return router;
 };

@@ -18,10 +18,22 @@ export const createEmbedding = async (
   solution: string,
   categories: string[]
 ): Promise<RetProcess> => {
+  // Check if the solution is HTML
+  const isHtml = isHtmlContent(solution);
+
   // Retrieve embedding data based on the provided document, title, and solution.
-  const embeddingData = await getEmbeddingData(
-    `title: "${title}" keyword:"${document}" answers/solutions:"${solution}" categories:${categories}`
-  );
+  let embeddingData: Array<EmbeddingData> = [];
+  if (!isHtml) {
+    console.log("NON-HTML")
+    embeddingData = await getEmbeddingData(
+      `title: "${title}" keyword:"${document}" answers/solutions:"${solution}" categories:${categories}`
+    );
+  } else {
+    console.log("HTML")
+    embeddingData = await getEmbeddingData(
+      `title: "${title}" keyword:"${document}" categories:${categories}`
+    );
+  }
 
   // Store the obtained embedding data for the document.
   const embedding = await storeEmbedding(
@@ -36,6 +48,12 @@ export const createEmbedding = async (
   return {
     objectId: embedding.id,
   };
+};
+
+// Function to check if content is HTML
+const isHtmlContent = (content: string): boolean => {
+  const htmlRegex = /<\/?[a-z][\s\S]*>/i;
+  return htmlRegex.test(content);
 };
 
 export const getEmbeddingData = async (documentKeyword: string) => {

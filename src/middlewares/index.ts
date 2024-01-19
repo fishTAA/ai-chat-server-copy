@@ -3,22 +3,8 @@ import { decodeToken } from '../sessions/session';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { findAdminAccs } from '../adminAuth/authenticate';
 
-let tokenHolder = '';
-
-export const validateUser = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const token = req.headers.authorization;
-    // console.log(token);
-
-    if (token) {
-        const sessionToken = token.split(' ')[1];
-        tokenHolder = sessionToken;
-    }
-
-    next();
-};
-
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const token = tokenHolder;
+    const token = req.headers['authorization'];
     
     console.log("Middleware: ", token);
 
@@ -30,9 +16,10 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
 };
 
 export const isAdmin = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const token = tokenHolder;
+    const token = req.headers['authorization'];
+    const sessionToken = token.split(' ')[1];
     try{
-        const decodedToken:JwtPayload = jwt.decode(token, { complete: true });
+        const decodedToken:JwtPayload = jwt.decode(sessionToken, { complete: true });
         console.log(decodedToken.payload.unique_name)
         console.log(await findAdminAccs(decodedToken.payload.unique_name))
         if(await findAdminAccs(decodedToken.payload.unique_name)){

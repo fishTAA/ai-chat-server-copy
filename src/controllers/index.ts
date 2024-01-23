@@ -375,3 +375,34 @@ export const retrieveEmbeddingbyCategory = async (
     return res.sendStatus(500);
   }
 };
+
+export const deleteEmbedding = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const embeddingId = req.params.id;
+
+  if (!embeddingId || !ObjectId.isValid(embeddingId)) {
+    return res.status(400).json({ error: "Invalid embedding ID parameter" });
+  }
+
+  try {
+    const objectId = new ObjectId(embeddingId);
+    const query = { _id: objectId };
+
+    // Call the deleteOne method to remove the embedding with the specified ID
+    const deleteResult = await getConnection()
+      .then(async (db) => {
+        return await db.collection("documentUpload").deleteOne(query);
+      });
+
+    if (deleteResult.deletedCount === 0) {
+      return res.status(404).json({ error: "Embedding not found" });
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};

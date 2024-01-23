@@ -148,22 +148,22 @@ export const updateEmbedding = async (
   res: express.Response
 ) => {
   const documentTitle = req.body.title;
-  const documentKeyword  = req.body.keyword;
-  const document  = req.body.input;
+  const documentKeyword = req.body.keyword;
+  const document = req.body.input;
   const categories = req.body.categories;
-  const findID  = req.body.findID
+  const findID = req.body.findID
   const objectId = new ObjectId(findID);
 
   //Find Specified ID
-  const query = {_id: objectId }
-  console.log(findID)
+  const query = { _id: objectId }
+  try{
   const findResult = await getConnection()
-      .then(async (db) => {
-        return await db.collection("documentUpload").findOne(query);
-      });
+    .then(async (db) => {
+      return await db.collection("documentUpload").findOne(query);
+    });
   console.log(findResult)
-  if (!findResult){
-    return res.status(400).send({message: "Document not Found"})
+  if (!findResult) {
+    return res.status(400).send({ message: "Document not Found" })
   }
 
   console.log("Updating Embedding");
@@ -175,14 +175,19 @@ export const updateEmbedding = async (
     categories,
     objectId
   );
-  
-  if(!ret){
-    return res.status(400).json({message: "Update Failed"})
+
+  if (ret && ret.error) {
+    return res.status(400).json({ message: "Update Failed" })
   }
+  
   res.json({
     id: ret.objectId.toString(),
     success: true,
   });
+  }catch(error){
+    console.log("Error Updating", error)
+    res.status(400).send({message: "Error Updating"})
+  }
 };
 
 // Express route for testing embedding and finding related documents

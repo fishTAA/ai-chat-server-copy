@@ -94,7 +94,7 @@ export const updateExistingEmbedding = async (
   solution: string,
   categories: string[],
   findID: ObjectId
-): Promise<RetProcess> => {
+): Promise<any> => {
   // Check if the solution is HTML
   const isHtml = isHtmlContent(solution);
 
@@ -111,6 +111,7 @@ export const updateExistingEmbedding = async (
       `title: "${title}" keyword:"${document}" categories:${categories}`
     );
   }
+  try{
   const findResult = await getConnection()
       .then(async (db) => {
         return await db.collection("documentUpload").updateOne(
@@ -131,7 +132,11 @@ export const updateExistingEmbedding = async (
           }
         );
       });
-    
+  }catch (error){
+    console.log("Error Updating", error)
+    return {error: error.message || "Update failed"}
+      
+  }
   // Return an object containing the objectId of the updated embedding.
   return {
     objectId: findID

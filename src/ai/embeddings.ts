@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { getConnection } from "../db/connection";
 import {
   Choice,
@@ -34,7 +35,7 @@ export const createEmbedding = async (
       `title: "${title}" keyword:"${document}" categories:${categories}`
     );
   }
-
+  console.log("Attemptng to Save", embeddingData)
   // Store the obtained embedding data for the document.
   const embedding = await storeEmbedding(
     document,
@@ -63,7 +64,7 @@ export const getEmbeddingData = async (documentKeyword: string) => {
     input: documentKeyword,
     model: embeddingModel,
   };
-
+  console.log("Getembeddingdata openaikey:",openAIToken)
   // Make a POST request to the embedding endpoint with the provided data.
   return fetch(embeddingEndPoint, {
     method: "post",
@@ -85,6 +86,56 @@ export const getEmbeddingData = async (documentKeyword: string) => {
       console.log("error", e);
       throw e;
     });
+};
+
+export const updateExistingEmbedding = async (
+  document: string,
+  title: string,
+  solution: string,
+  categories: string[],
+  findID: ObjectId
+): Promise<RetProcess> => {
+  // Check if the solution is HTML
+  const isHtml = isHtmlContent(solution);
+
+  // Retrieve embedding data based on the provided document, title, and solution.
+  let embeddingData: Array<EmbeddingData> = [];
+  if (!isHtml) {
+    console.log("NON-HTML")
+    embeddingData = await getEmbeddingData(
+      `title: "${title}" keyword:"${document}" answers/solutions:"${solution}" categories:${categories}`
+    );
+  } else {
+    console.log("HTML")
+    embeddingData = await getEmbeddingData(
+      `title: "${title}" keyword:"${document}" categories:${categories}`
+    );
+  }
+  const findResult = await getConnection()
+      .then(async (db) => {
+        return await db.collection("documentUpload").updateOne(
+          {
+            _id: findID
+          },
+          {
+            $set: {
+              title: title,
+              input: document,
+              solution: solution,
+              categories: categories,
+              dateUploaded: new Date(),
+              version: embeddingModelVersion,
+              model: embeddingModel,
+              embedding: embeddingData[0].embedding,
+            }
+          }
+        );
+      });
+    
+  // Return an object containing the objectId of the updated embedding.
+  return {
+    objectId: findID
+  };
 };
 
 // A promise that resolves with an array of related documents

@@ -25,12 +25,12 @@ export const createEmbedding = async (
   // Retrieve embedding data based on the provided document, title, and solution.
   let embeddingData: Array<EmbeddingData> = [];
   if (!isHtml) {
-    console.log("NON-HTML")
+    console.log("NON-HTML");
     embeddingData = await getEmbeddingData(
       `title: "${title}" keyword:"${document}" answers/solutions:"${solution}" categories:${categories}`
     );
   } else {
-    console.log("HTML")
+    console.log("HTML");
     embeddingData = await getEmbeddingData(
       `title: "${title}" keyword:"${document}" categories:${categories}`
     );
@@ -244,4 +244,18 @@ export const submitForm = async (
       console.log("error", e);
       throw e;
     });
+};
+
+export const getEmbeddingCollection = async (req, res) => {
+  try {
+    const db = await getConnection();
+
+    const articleC = await db.collection("documentUpload").find({});
+    const articles = await articleC.toArray();
+
+    res.status(200).send(articles);
+  } catch (error) {
+    console.error("Error in getEmbeddingCollection:", error);
+    res.status(500).send("Internal Server Error");
+  }
 };

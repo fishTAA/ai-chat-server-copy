@@ -23,6 +23,7 @@ import {
   findRelatedDocuments,
   getEmbeddingData,
   submitForm,
+  updateExistingEmbedding,
 } from "../ai/embeddings";
 import { SettingsInterface } from "../settings/models";
 import { getSettings, saveSettings } from "../settings/settings";
@@ -140,6 +141,53 @@ export const newEmbedding = async (
     id: ret.objectId.toString(),
     success: true,
   });
+};
+
+export const updateEmbedding = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const documentTitle = req.body.title;
+  const documentKeyword = req.body.keyword;
+  const document = req.body.input;
+  const categories = req.body.categories;
+  const findID = req.body.findID
+  const objectId = new ObjectId(findID);
+
+  //Find Specified ID
+  const query = { _id: objectId }
+  try{
+  const findResult = await getConnection()
+    .then(async (db) => {
+      return await db.collection("documentUpload").findOne(query);
+    });
+  console.log(findResult)
+  if (!findResult) {
+    return res.status(400).send({ message: "Document not Found" })
+  }
+
+  console.log("Updating Embedding");
+  // Create an embedding for the document and store it in the database
+  const ret = await updateExistingEmbedding(
+    document,
+    documentTitle,
+    documentKeyword,
+    categories,
+    objectId
+  );
+
+  if (ret && ret.error) {
+    return res.status(400).json({ message: "Update Failed" })
+  }
+  
+  res.json({
+    id: ret.objectId.toString(),
+    success: true,
+  });
+  }catch(error){
+    console.log("Error Updating", error)
+    res.status(400).send({message: "Error Updating"})
+  }
 };
 
 // Express route for testing embedding and finding related documents
@@ -373,5 +421,36 @@ export const retrieveEmbeddingbyCategory = async (
   } catch (err) {
     console.error(err);
     return res.sendStatus(500);
+  }
+};
+
+export const deleteEmbedding = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const embeddingId = req.params.id;
+
+  if (!embeddingId || !ObjectId.isValid(embeddingId)) {
+    return res.status(400).json({ error: "Invalid embedding ID parameter" });
+  }
+
+  try {
+    const objectId = new ObjectId(embeddingId);
+    const query = { _id: objectId };
+
+    // Call the deleteOne method to remove the embedding with the specified ID
+    const deleteResult = await getConnection()
+      .then(async (db) => {
+        return await db.collection("documentUpload").deleteOne(query);
+      });
+
+    if (deleteResult.deletedCount === 0) {
+      return res.status(404).json({ error: "Embedding not found" });
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };

@@ -151,42 +151,42 @@ export const updateEmbedding = async (
   const documentKeyword = req.body.keyword;
   const document = req.body.input;
   const categories = req.body.categories;
-  const findID = req.body.findID
+  const findID = req.body.findID;
   const objectId = new ObjectId(findID);
 
   //Find Specified ID
-  const query = { _id: objectId }
-  try{
-  const findResult = await getConnection()
-    .then(async (db) => {
+  const query = { _id: objectId };
+  console.log("updating", findID);
+  try {
+    const findResult = await getConnection().then(async (db) => {
       return await db.collection("documentUpload").findOne(query);
     });
-  console.log(findResult)
-  if (!findResult) {
-    return res.status(400).send({ message: "Document not Found" })
-  }
+    console.log(findResult);
+    if (!findResult) {
+      return res.status(400).send({ message: "Document not Found" });
+    }
 
-  console.log("Updating Embedding");
-  // Create an embedding for the document and store it in the database
-  const ret = await updateExistingEmbedding(
-    document,
-    documentTitle,
-    documentKeyword,
-    categories,
-    objectId
-  );
+    console.log("Updating Embedding");
+    // Create an embedding for the document and store it in the database
+    const ret = await updateExistingEmbedding(
+      document,
+      documentTitle,
+      documentKeyword,
+      categories,
+      objectId
+    );
 
-  if (ret && ret.error) {
-    return res.status(400).json({ message: "Update Failed" })
-  }
-  
-  res.json({
-    id: ret.objectId.toString(),
-    success: true,
-  });
-  }catch(error){
-    console.log("Error Updating", error)
-    res.status(400).send({message: "Error Updating"})
+    if (ret && ret.error) {
+      return res.status(400).json({ message: "Update Failed" });
+    }
+
+    res.json({
+      id: ret.objectId.toString(),
+      success: true,
+    });
+  } catch (error) {
+    console.log("Error Updating", error);
+    res.status(400).send({ message: "Error Updating" });
   }
 };
 
@@ -439,10 +439,9 @@ export const deleteEmbedding = async (
     const query = { _id: objectId };
 
     // Call the deleteOne method to remove the embedding with the specified ID
-    const deleteResult = await getConnection()
-      .then(async (db) => {
-        return await db.collection("documentUpload").deleteOne(query);
-      });
+    const deleteResult = await getConnection().then(async (db) => {
+      return await db.collection("documentUpload").deleteOne(query);
+    });
 
     if (deleteResult.deletedCount === 0) {
       return res.status(404).json({ error: "Embedding not found" });

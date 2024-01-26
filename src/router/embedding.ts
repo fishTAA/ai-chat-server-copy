@@ -11,5 +11,5 @@ export default (router: express.Router) => {
   router.post("/testEmbedding", isAuthenticated, testEmbedding);
   router.get("/findDocument", isAuthenticated, searchDocument);
   router.get("/embeddingCollection",isAuthenticated,isAdmin, getEmbeddingCollection);
-  router.patch("/updateEmbedding", isAuthenticated, isAdmin, updateEmbedding )
+  router.post("/updateEmbedding",isAuthenticated,isAdmin, updateEmbedding )
 };

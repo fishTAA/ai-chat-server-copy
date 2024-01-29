@@ -227,7 +227,7 @@ export const saveAppSettings = async (
 ) => {
   // Extract settings data from the request body
   const settings: SettingsInterface = req.body.settingsData;
-
+  console.log("saving settings", settings);
   // Save the provided settings to the database
   const result = saveSettings(settings);
   console.log("res", settings);
@@ -240,8 +240,8 @@ export const getAppSettings = async (
   req: express.Request,
   res: express.Response
 ) => {
-  //const settings = await getSettings();
-  //res.json(settings)
+  const settings = await getSettings();
+  res.json(settings);
   return {};
 };
 
@@ -429,7 +429,7 @@ export const deleteEmbedding = async (
   res: express.Response
 ) => {
   const embeddingId = req.params.id;
-
+  console.log("deleting", embeddingId);
   if (!embeddingId || !ObjectId.isValid(embeddingId)) {
     return res.status(400).json({ error: "Invalid embedding ID parameter" });
   }

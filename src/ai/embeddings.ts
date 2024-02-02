@@ -65,27 +65,37 @@ export const getEmbeddingData = async (documentKeyword: string) => {
     model: embeddingModel,
   };
   console.log("Getembeddingdata openaikey:", openAIToken);
-  // Make a POST request to the embedding endpoint with the provided data.
-  return fetch(embeddingEndPoint, {
-    method: "post",
-    headers: {
-      Authorization: `Bearer ${openAIToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((res) => {
-      return res.json();
-    })
-    .then(async (res) => {
-      // will return the embedding data from the response
-      const embeddingData: Array<EmbeddingData> = res.data;
-      return embeddingData;
-    })
-    .catch((e) => {
-      console.log("error", e);
-      throw e;
+
+  try {
+    // Make a POST request to the embedding endpoint with the provided data.
+    const res = await fetch(embeddingEndPoint, {
+      method: "post",
+      headers: {
+        Authorization: `Bearer ${openAIToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     });
+
+    // Check if the response status is okay
+    if (!res.ok) {
+      throw new Error(`Failed to fetch embeddings. Status: ${res.status}`);
+    }
+
+    const responseData = await res.json();
+
+    // Check if 'data' property is defined in the response
+    if (responseData.data) {
+      // Return the embedding data from the response
+      const embeddingData: Array<EmbeddingData> = responseData.data;
+      return embeddingData;
+    } else {
+      throw new Error("Unexpected response format: missing 'data' property");
+    }
+  } catch (e) {
+    console.log("error", e);
+    throw e;
+  }
 };
 
 export const updateExistingEmbedding = async (

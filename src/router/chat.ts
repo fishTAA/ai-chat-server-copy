@@ -1,9 +1,8 @@
-import express from 'express';
+import express from "express";
 
-import { getChatMessages } from '../controllers';
-import { isAuthenticated  } from '../middlewares';
+import { getChatMessages } from "../controllers";
+import { isAuthenticated } from "../middlewares";
 
 export default (router: express.Router) => {
-    router.get('/getMessages',isAuthenticated, getChatMessages);
-
-}
+  router.get("/getMessages", getChatMessages);
+};

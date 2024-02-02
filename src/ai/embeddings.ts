@@ -35,7 +35,7 @@ export const createEmbedding = async (
       `title: "${title}" keyword:"${document}" categories:${categories}`
     );
   }
-  console.log("Attemptng to Save", embeddingData)
+  console.log("Attemptng to Save", embeddingData);
   // Store the obtained embedding data for the document.
   const embedding = await storeEmbedding(
     document,
@@ -64,7 +64,7 @@ export const getEmbeddingData = async (documentKeyword: string) => {
     input: documentKeyword,
     model: embeddingModel,
   };
-  console.log("Getembeddingdata openaikey:",openAIToken)
+  console.log("Getembeddingdata openaikey:", openAIToken);
   // Make a POST request to the embedding endpoint with the provided data.
   return fetch(embeddingEndPoint, {
     method: "post",
@@ -91,55 +91,53 @@ export const getEmbeddingData = async (documentKeyword: string) => {
 export const updateExistingEmbedding = async (
   document: string,
   title: string,
-  solution: string,
+  keyword: string,
   categories: string[],
   findID: ObjectId
 ): Promise<any> => {
   // Check if the solution is HTML
-  const isHtml = isHtmlContent(solution);
+  const isHtml = isHtmlContent(document);
 
   // Retrieve embedding data based on the provided document, title, and solution.
   let embeddingData: Array<EmbeddingData> = [];
   if (!isHtml) {
-    console.log("NON-HTML")
+    console.log("NON-HTML");
     embeddingData = await getEmbeddingData(
-      `title: "${title}" keyword:"${document}" answers/solutions:"${solution}" categories:${categories}`
+      `title: "${title}" keyword:"${keyword}" answers/solutions:"${document}" categories:${categories}`
     );
   } else {
-    console.log("HTML")
+    console.log("HTML");
     embeddingData = await getEmbeddingData(
-      `title: "${title}" keyword:"${document}" categories:${categories}`
+      `title: "${title}" keyword:"${keyword}" categories:${categories}`
     );
   }
-  try{
-  const findResult = await getConnection()
-      .then(async (db) => {
-        return await db.collection("documentUpload").updateOne(
-          {
-            _id: findID
+  try {
+    const findResult = await getConnection().then(async (db) => {
+      return await db.collection("documentUpload").updateOne(
+        {
+          _id: findID,
+        },
+        {
+          $set: {
+            title: title,
+            input: keyword,
+            solution: document,
+            categories: categories,
+            dateUploaded: new Date(),
+            version: embeddingModelVersion,
+            model: embeddingModel,
+            embedding: embeddingData[0].embedding,
           },
-          {
-            $set: {
-              title: title,
-              input: document,
-              solution: solution,
-              categories: categories,
-              dateUploaded: new Date(),
-              version: embeddingModelVersion,
-              model: embeddingModel,
-              embedding: embeddingData[0].embedding,
-            }
-          }
-        );
-      });
-  }catch (error){
-    console.log("Error Updating", error)
-    return {error: error.message || "Update failed"}
-      
+        }
+      );
+    });
+  } catch (error) {
+    console.log("Error Updating", error);
+    return { error: error.message || "Update failed" };
   }
   // Return an object containing the objectId of the updated embedding.
   return {
-    objectId: findID
+    objectId: findID,
   };
 };
 
